@@ -1,30 +1,24 @@
-ip_counts = {}
+def parse_log_line(line):
+    event ={}
 
-with open("logs/logs.txt","r") as file:
+    fields = line.strip().split()
+
+    for field in fields:
+        if "=" in field:
+            key,value = field.split("=",1)
+            event[key] = value
+
+    return event
+
+parsed_events =[]
+
+with open("logs/auth.log","r") as file:
     for line in file:
-        if "FAILED LOGIN" in line:
-            parts = line.split("ip=")
-            ip = parts[1].strip()
+        parsed_event = parse_log_line(line)
+        parsed_events.append(parsed_event)
 
-            if ip in ip_counts:
-                ip_counts[ip] += 1
-            else:
-                ip_counts[ip] = 1
+print("\n == Parsed Events ==")
 
-print("== IP ATTEMPTS ==")
-for ip , counts in ip_counts.items():
-    print(f"{ip} -> {counts} attempts")
 
-    
-print("\n == ALERTS ==")
-
-for ip , count in ip_counts.items():
-    if count >=5:
-        serverity = "HIGH"
-    elif count >=3:
-        serverity = "MEDIUM"
-    else:
-        serverity = "LOW"
-
-    if serverity != "LOW":
-        print(f"Alert : {ip} -> attempts: {count} -> severity: {serverity}")
+for event in parsed_events:
+    print(event)
