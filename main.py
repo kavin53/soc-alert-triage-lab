@@ -17,8 +17,16 @@ with open("logs/auth.log","r") as file:
         parsed_event = parse_log_line(line)
         parsed_events.append(parsed_event)
 
-print("\n == Parsed Events ==")
-
+failed_login_events = []
 
 for event in parsed_events:
-    print(event)
+   
+    if event["event"] == "failed_login":
+        failed_login_events.append(event)
+
+print("\n === Failed Login Events ===")
+
+for event in failed_login_events:
+    print (event)
+
+print(f"\nTotal Failed Login Events: {len(failed_login_events)}"    )
