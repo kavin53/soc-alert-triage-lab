@@ -24,7 +24,7 @@ This project simulates a real-world Security Operations Center (SOC) workflow. I
 - [x] Failed login detection
 - [x] IP-based brute force detection
 - [x] Alert severity classification
-- [ ] Time-window brute force detection
+- [] Time-window brute force detection
 - [ ] Successful login after failed attempts
 - [ ] False positive handling / whitelist
 - [ ] Evidence capture
