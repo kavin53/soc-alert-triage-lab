@@ -6,20 +6,32 @@ This project simulates a real-world Security Operations Center (SOC) workflow. I
 
 ##  Objectives
 
-* Understand log data and data flow
-* Build detection logic for suspicious activity
-* Classify alerts based on severity
-* Map detections to MITRE ATT&CK
-* Generate incident reports
+
+- Understand SOC log data and event flow
+- Build Python-based log parsing logic
+- Detect suspicious authentication behavior
+- Implement threshold and time-window based detection
+- Reduce false positives using basic whitelist logic
+- Classify alert severity using scoring logic
+- Attach MITRE ATT&CK mappings to detections
+- Preserve evidence lines for analyst review
+- Recommend basic response actions
+- Document detections in a Sigma-style rule format
 
 ##  Features (In Progress)
 
-* [ ] Basic log ingestion
-* [ ] Failed login detection
-* [ ] IP-based brute force detection
-* [ ] Alert classification
-* [ ] MITRE ATT&CK mapping
-* [ ] Incident report generation
+- [x] Basic log ingestion
+- [x] Failed login detection
+- [x] IP-based brute force detection
+- [x] Alert severity classification
+- [ ] Time-window brute force detection
+- [ ] Successful login after failed attempts
+- [ ] False positive handling / whitelist
+- [ ] Evidence capture
+- [ ] MITRE ATT&CK mapping
+- [ ] Response recommendations
+- [ ] Sigma-style rule documentation
+- [ ] Markdown reporting
 
 ##  Project Structure (Planned)
 
