@@ -11,6 +11,20 @@ with open("logs/logs.txt","r") as file:
             else:
                 ip_counts[ip] = 1
 
-print("IP Failed Login Counts:")
-for ip, count in ip_counts.items():
-    print(ip ,"-> ", count)
+print("== IP ATTEMPTS ==")
+for ip , counts in ip_counts.items():
+    print(f"{ip} -> {counts} attempts")
+
+    
+print("\n == ALERTS ==")
+
+for ip , count in ip_counts.items():
+    if count >=5:
+        serverity = "HIGH"
+    elif count >=3:
+        serverity = "MEDIUM"
+    else:
+        serverity = "LOW"
+
+    if serverity != "LOW":
+        print(f"Alert : {ip} -> attempts: {count} -> severity: {serverity}")
