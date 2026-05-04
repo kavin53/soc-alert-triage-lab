@@ -7,7 +7,6 @@ def parse_log_line(line):
         if "=" in field:
             key,value = field.split("=",1)
             event[key] = value
-
     return event
 
 parsed_events =[]
@@ -20,13 +19,20 @@ with open("logs/auth.log","r") as file:
 failed_login_events = []
 
 for event in parsed_events:
-   
     if event["event"] == "failed_login":
         failed_login_events.append(event)
 
-print("\n === Failed Login Events ===")
+ip_counts = {}
 
 for event in failed_login_events:
-    print (event)
+    ip = event["ip"]
+    if ip in ip_counts:
+        ip_counts[ip] += 1
+    else:
+        ip_counts[ip] = 1
 
-print(f"\nTotal Failed Login Events: {len(failed_login_events)}"    )
+print("Failed login count per IP: ")
+
+for ip,count in ip_counts.items():
+    print(f"{ip}--> {count}")
+
