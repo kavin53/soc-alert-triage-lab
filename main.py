@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 
-
+HIGH_RISK = 5
 TIME_WINDOW_MINUTES = 5
 TEST_IP = "10.0.0.50"
+
 
 
 def parse_log_line(line):
@@ -81,6 +82,28 @@ if TEST_IP in failed_times_by_ip:
 
     print("Attempts inside window:", len(attempts_in_window))
 
+    if len(attempts_in_window) >= HIGH_RISK:
+        alert = {
+            "alert_name": "Time-window Brute Force Attack",
+            "source_ip": TEST_IP,
+            "attempts": len(attempts_in_window),
+            "window_start": window_start,
+            "window_end": window_end,
+            "severity": "HIGH"
+        }
+
+        print("\n== ALERT TRIGGERED ==")
+        print("Alert name:", alert["alert_name"])
+        print("Source IP:", alert["source_ip"])
+        print("Attempts:", alert["attempts"])
+        print("Window start:", alert["window_start"])
+        print("Window end:", alert["window_end"])
+        print("Severity:", alert["severity"])
+
+    else:
+        print("\n== NO ALERT ==")
+        print("Reason: Attempts inside window did not reach threshold.")
+
 else:
     print(f"No failed login events found for IP: {TEST_IP}")
-    
+
