@@ -82,6 +82,7 @@ for ip, timestamps in failed_times_by_ip.items():
         print(f"  {timestamp}")
 
 
+attempts_in_window = []
 
 test_ip = "10.0.0.50"
 timestamps = failed_times_by_ip[test_ip]
@@ -92,7 +93,20 @@ window_end = window_start + timedelta(minutes = TIME_WINDOW_MINUTES)
 
 print ("\n==TIME WINDOW TEST==")
 print("Window start: ",window_start)
-print("window end: ", window_end)
+print("window end: ", window_end )
+
+attempts_in_window = []
+
+for current_time in timestamps:
+    if window_start <= current_time <= window_end:
+        attempts_in_window.append(current_time)
+
+print("\n== Attempts inside window test ==")
+
+for attempt_time in attempts_in_window:
+    print(attempt_time)
+
+print ("attemps inside window: " ,len(attempts_in_window))
 
 
 ip_counts = {}
@@ -121,7 +135,7 @@ for ip,count in ip_counts.items():
 
         alerts.append(alert)  
 
-print("Failed login count per IP: ")
+print("\nFailed login count per IP: ")
 
 
 
