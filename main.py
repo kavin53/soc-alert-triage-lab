@@ -123,7 +123,7 @@ failed_attempts_by_key = {}
 for event in failed_login_events:
     f_ip = event["ip"]
     f_user = event["user"]
-    timestamp = event["timestamp"]
+    failed_timestamp = event["timestamp"]
     timestamp_o = datetime.fromisoformat(failed_timestamp)
 
     key = (f_ip,f_user)
@@ -153,7 +153,9 @@ for event in login_success_events:
     success_timestamp = event["timestamp"]
     success_time = datetime.fromisoformat(success_timestamp)
 
-    key = (s_user, s_ip)
+    key = (s_ip, s_user)
+
+    print(f"\nChecking success login: IP={s_ip}, User={s_user}, Time={success_time}")
 
     if key in failed_attempts_by_key:
         failed_times = failed_attempts_by_key[key]
@@ -170,6 +172,6 @@ for event in login_success_events:
             print(" ",failed_time)
 
     else:
-        print("no previous failed attempts found for this ", ip ," + ", user)
+        print("no previous failed attempts found for this ", s_ip ," + ", s_user)
 
 
