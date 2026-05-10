@@ -40,12 +40,12 @@ for event in parsed_events:
     if event["event"] == "login_success":
         login_success_events.append(event)
 
-print("== Total login success events==")
+#print("== Total login success events==")
 
-for event in login_success_events:
-    print(event["user"]," logged in at ", event["timestamp"], " from IP ", event["ip"])
+#for event in login_success_events:
+    #print(event["user"]," logged in at ", event["timestamp"], " from IP ", event["ip"])
 
-print("total login success events: ", len(login_success_events))
+#print("total login success events: ", len(login_success_events))
 
 
 failed_times_by_ip = {}
@@ -61,13 +61,13 @@ for event in failed_login_events:
     failed_times_by_ip[ip].append(timestamp_object)
 
 
-print("\n== FAILED LOGIN TIMES BY IP ==")
+#print("\n== FAILED LOGIN TIMES BY IP ==")
 
-for ip, timestamps in failed_times_by_ip.items():
-    print(f"\nIP: {ip}")
+#for ip, timestamps in failed_times_by_ip.items():
+   # print(f"\nIP: {ip}")
 
-    for timestamp in timestamps:
-        print(f"  {timestamp}")
+    #for timestamp in timestamps:
+        #print(f"  {timestamp}")
 
 
 
@@ -86,12 +86,12 @@ if TEST_IP in failed_times_by_ip:
         if window_start <= current_time <= window_end:
             attempts_in_window.append(current_time)
 
-    print("\n== ATTEMPTS INSIDE WINDOW ==")
+    #print("\n== ATTEMPTS INSIDE WINDOW ==")
 
-    for attempt_time in attempts_in_window:
-        print(attempt_time)
+    #for attempt_time in attempts_in_window:
+        #print(attempt_time)
 
-    print("Attempts inside window:", len(attempts_in_window))
+    #print("Attempts inside window:", len(attempts_in_window))
 
     if len(attempts_in_window) >= HIGH_RISK:
         alert = {
@@ -103,20 +103,20 @@ if TEST_IP in failed_times_by_ip:
             "severity": "HIGH"
         }
 
-        print("\n== ALERT TRIGGERED ==")
-        print("Alert name:", alert["alert_name"])
-        print("Source IP:", alert["source_ip"])
-        print("Attempts:", alert["attempts"])
-        print("Window start:", alert["window_start"])
-        print("Window end:", alert["window_end"])
-        print("Severity:", alert["severity"])
+       # print("\n== ALERT TRIGGERED ==")
+       # print("Alert name:", alert["alert_name"])
+       # print("Source IP:", alert["source_ip"])
+       # print("Attempts:", alert["attempts"])
+       # print("Window start:", alert["window_start"])
+       # print("Window end:", alert["window_end"])
+       # print("Severity:", alert["severity"])
 
-    else:
-        print("\n== NO ALERT ==")
-        print("Reason: Attempts inside window did not reach threshold.")
+    #else:
+       # print("\n== NO ALERT ==")
+       # print("Reason: Attempts inside window did not reach threshold.")
 
-else:
-    print(f"No failed login events found for IP: {TEST_IP}")
+#else:
+    #print(f"No failed login events found for IP: {TEST_IP}")
 
 failed_attempts_by_key = {}
 
