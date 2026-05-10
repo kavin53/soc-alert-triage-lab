@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 HIGH_RISK = 5
+
 TIME_WINDOW_MINUTES = 5
 TEST_IP = "10.0.0.50"
 
@@ -33,6 +34,19 @@ for event in parsed_events:
     if event["event"] == "failed_login":
         failed_login_events.append(event)
 
+login_success_events = []
+
+for event in parsed_events:
+    if event["event"] == "login_success":
+        login_success_events.append(event)
+
+print("== Total login success events==")
+
+for event in login_success_events:
+    print(event["user"]," logged in at ", event["timestamp"], " from IP ", event["ip"])
+
+print("total login success events: ", len(login_success_events))
+
 
 failed_times_by_ip = {}
 
@@ -56,7 +70,7 @@ for ip, timestamps in failed_times_by_ip.items():
         print(f"  {timestamp}")
 
 
-print("\n== TIME WINDOW TEST ==")
+
 
 if TEST_IP in failed_times_by_ip:
     timestamps = failed_times_by_ip[TEST_IP]
@@ -65,9 +79,6 @@ if TEST_IP in failed_times_by_ip:
     window_start = timestamps[0]
     window_end = window_start + timedelta(minutes=TIME_WINDOW_MINUTES)
 
-    print("Test IP:", TEST_IP)
-    print("Window start:", window_start)
-    print("Window end:", window_end)
 
     attempts_in_window = []
 
@@ -106,4 +117,33 @@ if TEST_IP in failed_times_by_ip:
 
 else:
     print(f"No failed login events found for IP: {TEST_IP}")
+
+failed_attempts_by_key = {}
+
+for event in failed_login_events:
+    ip = event["ip"]
+    user = event["user"]
+    timestamp = event["timestamp"]
+    timestamp_o = datetime.fromisoformat(timestamp)
+
+    key = (ip,user)
+
+    if key not in failed_attempts_by_key:
+        failed_attempts_by_key[key] = []
+
+    failed_attempts_by_key[key].append(timestamp_o)
+
+print("\n== FAILED LOGIN TIMES BY IP AND USER ==")
+
+for key,timestamps in failed_attempts_by_key.items():
+    ip, user = key
+
+    print(f"\nIP: {ip}, User: {user}")
+
+    for timestamp in timestamps:
+        print(f" {timestamp}")
+
+print ("failed attempts : ",len(timestamps))
+    
+
 
