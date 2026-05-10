@@ -121,29 +121,55 @@ if TEST_IP in failed_times_by_ip:
 failed_attempts_by_key = {}
 
 for event in failed_login_events:
-    ip = event["ip"]
-    user = event["user"]
+    f_ip = event["ip"]
+    f_user = event["user"]
     timestamp = event["timestamp"]
-    timestamp_o = datetime.fromisoformat(timestamp)
+    timestamp_o = datetime.fromisoformat(failed_timestamp)
 
-    key = (ip,user)
+    key = (f_ip,f_user)
 
     if key not in failed_attempts_by_key:
         failed_attempts_by_key[key] = []
 
     failed_attempts_by_key[key].append(timestamp_o)
 
-print("\n== FAILED LOGIN TIMES BY IP AND USER ==")
+#print("\n== FAILED LOGIN TIMES BY IP AND USER ==")
 
-for key,timestamps in failed_attempts_by_key.items():
-    ip, user = key
+#for key,timestamps in failed_attempts_by_key.items():
+    #ip, user = key
 
-    print(f"\nIP: {ip}, User: {user}")
+    #print(f"\nIP: {ip}, User: {user}")
 
-    for timestamp in timestamps:
-        print(f" {timestamp}")
+   # for timestamp in timestamps:
+       # print(f" {timestamp}")
 
-print ("failed attempts : ",len(timestamps))
-    
+#print ("failed attempts : ",len(timestamps))
+
+success_attemps_by_user = {}
+
+for event in login_success_events:
+    s_user = event["user"]
+    s_ip = event["ip"]
+    success_timestamp = event["timestamp"]
+    success_time = datetime.fromisoformat(success_timestamp)
+
+    key = (s_user, s_ip)
+
+    if key in failed_attempts_by_key:
+        failed_times = failed_attempts_by_key[key]
+
+        failures_before_success = []
+
+        for failed_time in failed_times:
+            if failed_time < success_time:
+                failures_before_success.append(failed_time)
+
+        print("failures before success: ", len(failures_before_success))
+
+        for failed_time in failures_before_success:
+            print(" ",failed_time)
+
+    else:
+        print("no previous failed attempts found for this ", ip ," + ", user)
 
 
