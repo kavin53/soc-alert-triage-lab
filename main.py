@@ -10,7 +10,10 @@ TEST_IP = "10.0.0.50"
 def parse_log_line(line):
     event = {}
 
-    fields = line.strip().split()
+    clean_line = line.strip()
+    event["raw"] = clean_line
+
+    fields = clean_line.split()
 
     for field in fields:
         if "=" in field:
@@ -34,6 +37,7 @@ for event in parsed_events:
     if event["event"] == "failed_login":
         failed_login_events.append(event)
 
+
 login_success_events = []
 
 for event in parsed_events:
@@ -41,10 +45,8 @@ for event in parsed_events:
         login_success_events.append(event)
 
 #print("== Total login success events==")
-
 #for event in login_success_events:
     #print(event["user"]," logged in at ", event["timestamp"], " from IP ", event["ip"])
-
 #print("total login success events: ", len(login_success_events))
 
 
@@ -62,10 +64,8 @@ for event in failed_login_events:
 
 
 #print("\n== FAILED LOGIN TIMES BY IP ==")
-
 #for ip, timestamps in failed_times_by_ip.items():
    # print(f"\nIP: {ip}")
-
     #for timestamp in timestamps:
         #print(f"  {timestamp}")
 
@@ -87,10 +87,8 @@ if TEST_IP in failed_times_by_ip:
             attempts_in_window.append(current_time)
 
     #print("\n== ATTEMPTS INSIDE WINDOW ==")
-
     #for attempt_time in attempts_in_window:
         #print(attempt_time)
-
     #print("Attempts inside window:", len(attempts_in_window))
 
     if len(attempts_in_window) >= HIGH_RISK:
@@ -110,11 +108,9 @@ if TEST_IP in failed_times_by_ip:
        # print("Window start:", alert["window_start"])
        # print("Window end:", alert["window_end"])
        # print("Severity:", alert["severity"])
-
     #else:
        # print("\n== NO ALERT ==")
        # print("Reason: Attempts inside window did not reach threshold.")
-
 #else:
     #print(f"No failed login events found for IP: {TEST_IP}")
 
@@ -123,29 +119,25 @@ failed_attempts_by_key = {}
 for event in failed_login_events:
     f_ip = event["ip"]
     f_user = event["user"]
-    failed_timestamp = event["timestamp"]
-    timestamp_o = datetime.fromisoformat(failed_timestamp)
+   
 
     key = (f_ip,f_user)
 
     if key not in failed_attempts_by_key:
         failed_attempts_by_key[key] = []
 
-    failed_attempts_by_key[key].append(timestamp_o)
+    failed_attempts_by_key[key].append(event)
 
 #print("\n== FAILED LOGIN TIMES BY IP AND USER ==")
-
 #for key,timestamps in failed_attempts_by_key.items():
     #ip, user = key
-
     #print(f"\nIP: {ip}, User: {user}")
-
    # for timestamp in timestamps:
        # print(f" {timestamp}")
-
 #print ("failed attempts : ",len(timestamps))
 
 success_attemps_by_user = {}
+compromise_alerts = []
 
 for event in login_success_events:
     s_user = event["user"]
@@ -155,23 +147,52 @@ for event in login_success_events:
 
     key = (s_ip, s_user)
 
-    print(f"\nChecking success login: IP={s_ip}, User={s_user}, Time={success_time}")
+    print(f"\n====Checking success login: IP={s_ip}, User={s_user}, Time={success_time}====")
 
     if key in failed_attempts_by_key:
-        failed_times = failed_attempts_by_key[key]
+        failed_events = failed_attempts_by_key[key]
 
         failures_before_success = []
 
-        for failed_time in failed_times:
+        for failed_event in failed_events:
+
+            failed_time = datetime.fromisoformat(failed_event["timestamp"])
             if failed_time < success_time:
-                failures_before_success.append(failed_time)
+                failures_before_success.append(failed_event)
 
         print("failures before success: ", len(failures_before_success))
 
-        for failed_time in failures_before_success:
-            print(" ",failed_time)
+        for failed_event in failures_before_success:
+            print(" ",failed_event)
 
+        if len(failures_before_success) >= HIGH_RISK:
+            alert = {
+                "alert_name": "successful login after failed attempts",
+                "source_ip": s_ip,
+                "user" : s_user,
+                "attempts": len(failures_before_success),
+                "success_time" : success_time,
+                "severity": "critical",
+                "reason" : "Multiple failed login attempts were followed by a successful login from the same IP and user."
+            }
+        compromise_alerts.append(alert)
     else:
         print("no previous failed attempts found for this ", s_ip ," + ", s_user)
+
+    print("\n== COMPROMISE ALERTS ==")
+    if len(compromise_alerts) > 0:
+        for alert in compromise_alerts:
+            print("Alert name:", alert["alert_name"])
+            print("Source IP:", alert["source_ip"])
+            print("User:", alert["user"])
+            print("Failed attempts before success:", alert["attempts"])
+            print("Success time:", alert["success_time"])
+            print("Severity:", alert["severity"])
+            print("Reason:", alert["reason"])
+            print()
+    else:
+        print("No compromise alerts found.")
+
+
 
 
