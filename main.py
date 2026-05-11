@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from utils.parser import parse_log_line
+from detections.brute_force import detect_time_window_bruteforce
 
 HIGH_RISK = 5
 
@@ -33,69 +34,25 @@ for event in parsed_events:
 #print("total login success events: ", len(login_success_events))
 
 
-failed_times_by_ip = {}
+brute_force_alerts = detect_time_window_bruteforce(
+    failed_login_events,
+    threshold=HIGH_RISK,
+    time_window_minutes=TIME_WINDOW_MINUTES
+)
 
-for event in failed_login_events:
-    ip = event["ip"]
-    timestamp_text = event["timestamp"]
-    timestamp_object = datetime.fromisoformat(timestamp_text)
+print("\n== BRUTE FORCE ALERTS ==")
 
-    if ip not in failed_times_by_ip:
-        failed_times_by_ip[ip] = []
-
-    failed_times_by_ip[ip].append(timestamp_object)
-
-
-#print("\n== FAILED LOGIN TIMES BY IP ==")
-#for ip, timestamps in failed_times_by_ip.items():
-   # print(f"\nIP: {ip}")
-    #for timestamp in timestamps:
-        #print(f"  {timestamp}")
-
-
-
-
-if TEST_IP in failed_times_by_ip:
-    timestamps = failed_times_by_ip[TEST_IP]
-    timestamps.sort()
-
-    window_start = timestamps[0]
-    window_end = window_start + timedelta(minutes=TIME_WINDOW_MINUTES)
-
-
-    attempts_in_window = []
-
-    for current_time in timestamps:
-        if window_start <= current_time <= window_end:
-            attempts_in_window.append(current_time)
-
-    #print("\n== ATTEMPTS INSIDE WINDOW ==")
-    #for attempt_time in attempts_in_window:
-        #print(attempt_time)
-    #print("Attempts inside window:", len(attempts_in_window))
-
-    if len(attempts_in_window) >= HIGH_RISK:
-        alert = {
-            "alert_name": "Time-window Brute Force Attack",
-            "source_ip": TEST_IP,
-            "attempts": len(attempts_in_window),
-            "window_start": window_start,
-            "window_end": window_end,
-            "severity": "HIGH"
-        }
-
-       # print("\n== ALERT TRIGGERED ==")
-       # print("Alert name:", alert["alert_name"])
-       # print("Source IP:", alert["source_ip"])
-       # print("Attempts:", alert["attempts"])
-       # print("Window start:", alert["window_start"])
-       # print("Window end:", alert["window_end"])
-       # print("Severity:", alert["severity"])
-    #else:
-       # print("\n== NO ALERT ==")
-       # print("Reason: Attempts inside window did not reach threshold.")
-#else:
-    #print(f"No failed login events found for IP: {TEST_IP}")
+if len(brute_force_alerts) > 0:
+    for alert in brute_force_alerts:
+        print("Alert name:", alert["alert_name"])
+        print("Source IP:", alert["source_ip"])
+        print("Attempts:", alert["attempts"])
+        print("Window start:", alert["window_start"])
+        print("Window end:", alert["window_end"])
+        print("Severity:", alert["severity"])
+        print()
+else:
+    print("No brute force alerts found.")
 
 failed_attempts_by_key = {}
 
@@ -119,7 +76,7 @@ for event in failed_login_events:
        # print(f" {timestamp}")
 #print ("failed attempts : ",len(timestamps))
 
-success_attemps_by_user = {}
+
 compromise_alerts = []
 
 for event in login_success_events:
@@ -158,11 +115,12 @@ for event in login_success_events:
                 "severity": "critical",
                 "reason" : "Multiple failed login attempts were followed by a successful login from the same IP and user."
             }
-        compromise_alerts.append(alert)
+            compromise_alerts.append(alert)
     else:
         print("no previous failed attempts found for this ", s_ip ," + ", s_user)
 
     print("\n== COMPROMISE ALERTS ==")
+    
     if len(compromise_alerts) > 0:
         for alert in compromise_alerts:
             print("Alert name:", alert["alert_name"])
