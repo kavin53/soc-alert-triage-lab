@@ -1,27 +1,10 @@
 from datetime import datetime, timedelta
+from utils.parser import parse_log_line
 
 HIGH_RISK = 5
 
 TIME_WINDOW_MINUTES = 5
 TEST_IP = "10.0.0.50"
-
-
-
-def parse_log_line(line):
-    event = {}
-
-    clean_line = line.strip()
-    event["raw"] = clean_line
-
-    fields = clean_line.split()
-
-    for field in fields:
-        if "=" in field:
-            key, value = field.split("=", 1)
-            event[key] = value
-
-    return event
-
 
 parsed_events = []
 
